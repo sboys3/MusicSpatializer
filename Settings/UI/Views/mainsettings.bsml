@@ -1,0 +1,22 @@
+﻿<settings-container>
+  <horizontal>
+    <text text='Music Spatializer Settings' font-size='5' />
+  </horizontal>
+
+  <bool-setting text='Enable Music Spatializer' value='musicspatializer-enabled'
+                get-event="refresh-musicspatializer-values"
+                hover-hint='Enables Music Spatializer. The game will sound how it originally did when this is disabled.' />  
+  
+  <bool-setting text='Enable 360 movement' value='musicspatializer-enable-360'
+                get-event="refresh-musicspatializer-values"
+                hover-hint='Make the music follow the triangle/chevron in 360 maps. When disabled the audio will remain in the original forward direction.' />
+  
+  <bool-setting text='Enable resonance' value='musicspatializer-enable-resonance'
+                get-event="refresh-musicspatializer-values"
+                hover-hint='Adds a small amount of echo. You can hear it if you pause in the middle of a song.' />
+ 
+  <bool-setting text='Show debug spheres' value='musicspatializer-debugspheres'
+                get-event="refresh-musicspatializer-values"
+                hover-hint='Show the location of the audio sources with ugly white spheres.' />
+  
+</settings-container>
