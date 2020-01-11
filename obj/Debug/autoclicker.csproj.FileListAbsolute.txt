@@ -1,2 +1,0 @@
-C:\Users\Admin\Desktop\games\Beat Saber\stuff\autoclicker\obj\Debug\autoclicker.csprojAssemblyReference.cache
-C:\Users\Admin\Desktop\games\Beat Saber\stuff\autoclicker\obj\Debug\autoclicker.csproj.CoreCompileInputs.cache
