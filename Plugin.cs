@@ -9,7 +9,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Harmony;
 using MusicSpatializer.Settings;
 using MusicSpatializer.Settings.UI;
 
@@ -22,7 +21,6 @@ namespace MusicSpatializer
         public const string Name = "MusicSpatializer";
         public const  string Version = "1.0.0";
         
-        //internal static HarmonyInstance harmonyInstance = HarmonyInstance.Create("com.sboys3.BeatSaber.MusicSpatializer");
 
         public void Init(Logger logger, [Config.Prefer("json")] IConfigProvider cfgProvider, PluginLoader.PluginMetadata metadata)
         {
@@ -44,12 +42,12 @@ namespace MusicSpatializer
             Scene[] scenes=UnityEngine.SceneManagement.SceneManager.GetAllScenes();
             foreach (Scene s in scenes) {
                 Log("\tscene name : {0}", s.name);
-                logGameobjects(s);
+                LogGameobjects(s);
             }//*/
             
             if (scene.name == "GameplayCore") // only run in standard level scene
             {
-                inject(scene);
+                Inject(scene);
                 /*
                 Scene[] scenes = UnityEngine.SceneManagement.SceneManager.GetAllScenes();
                 foreach (Scene s in scenes)
@@ -117,7 +115,7 @@ namespace MusicSpatializer
 
 
         //this Function is only for debugging and should be unused in releases
-        void logGameobjects(Scene scene)
+        void LogGameobjects(Scene scene)
         {
             GameObject[] rootObjects = scene.GetRootGameObjects();
             GameObject rootObject = rootObjects.First<GameObject>();//.FindObjectsOfType<GameObject>();
@@ -137,9 +135,9 @@ namespace MusicSpatializer
             }
         }
 
-        public void inject(Scene scene)
+        public void Inject(Scene scene)
         {
-            if (Configuration.configClass.enabled == false)
+            if (Configuration.ConfigClass.enabled == false)
             {
                 return;
             }
@@ -159,18 +157,18 @@ namespace MusicSpatializer
                     center.transform.parent = songControl.transform;
                     
                     //Log("obj name: {0}", songControll.name);
-                    audioSplitter splitter=songControl.AddComponent<audioSplitter>();
-                    speakerCreator speakers= center.AddComponent<speakerCreator>();
+                    AudioSplitter splitter=songControl.AddComponent<AudioSplitter>();
+                    SpeakerCreator speakers= center.AddComponent<SpeakerCreator>();
                     speakers.splitter = splitter;
-                    if (Configuration.configClass.enableResonance==false)
+                    if (Configuration.ConfigClass.enableResonance==false)
                     {
                         speakers.resonance = false;
                     }
-                    if (Configuration.configClass.enable360 == false)
+                    if (Configuration.ConfigClass.enable360 == false)
                     {
                         speakers.doRotation = false;
                     }
-                    if (Configuration.configClass.debugSpheres)
+                    if (Configuration.ConfigClass.debugSpheres)
                     {
                         speakers.debugSpheres = true;
                     }
@@ -210,7 +208,7 @@ namespace MusicSpatializer
     }
 
 
-    public class speakerCreator : MonoBehaviour
+    public class SpeakerCreator : MonoBehaviour
     {
 
         public AudioClip dclip;
@@ -219,7 +217,7 @@ namespace MusicSpatializer
         public GameObject speakerResonance;
         public float frontDistance = 5;
         public float sideDistance = 3f;
-        public audioSplitter splitter;
+        public AudioSplitter splitter;
         public bool resonance = true;
         public bool doRotation = true;
         public bool debugSpheres = false;
@@ -255,7 +253,7 @@ namespace MusicSpatializer
                         if (rotationMarker != null)
                         {
                             sideDistance = 1.5f;
-                            positionSpeakers();
+                            PositionSpeakers();
                         }
                         rotationMarkerTries--;
                     }
@@ -263,7 +261,7 @@ namespace MusicSpatializer
             }
         }
 
-        GameObject newSpeaker(int channel)
+        GameObject NewSpeaker(int channel)
         {
             GameObject speaker;
             if (debugSpheres)
@@ -276,7 +274,7 @@ namespace MusicSpatializer
             }
             speaker.transform.parent = transform;
 
-            audioReader chfilt = speaker.AddComponent<audioReader>();
+            AudioReader chfilt = speaker.AddComponent<AudioReader>();
             chfilt.channel = channel;
             chfilt.splitter = splitter;
             if (channel == -1)
@@ -304,7 +302,7 @@ namespace MusicSpatializer
                 //AudioLowPassFilter lowpass = speaker.AddComponent<AudioLowPassFilter>();
                 //lowpass.cutoffFrequency = 350;
 
-                silencer silence = speaker.AddComponent<silencer>();
+                Silencer silence = speaker.AddComponent<Silencer>();
 
 
                 AudioReverbZone reverb = speaker.AddComponent<AudioReverbZone>();
@@ -317,7 +315,7 @@ namespace MusicSpatializer
             return speaker;
         }
 
-        void positionSpeakers()
+        void PositionSpeakers()
         {
             if (speakerLeft)
             {
@@ -343,17 +341,17 @@ namespace MusicSpatializer
             {
                 Destroy(speakerRight);
             }
-            speakerLeft = newSpeaker(0);
-            speakerRight = newSpeaker(1);
+            speakerLeft = NewSpeaker(0);
+            speakerRight = NewSpeaker(1);
             if (resonance)
             {
-                speakerResonance = newSpeaker(-1);
+                speakerResonance = NewSpeaker(-1);
             }
-            positionSpeakers();
+            PositionSpeakers();
         }
     }
 
-    public class audioSplitter : MonoBehaviour
+    public class AudioSplitter : MonoBehaviour
     {
 
         public float[][] channelData;
@@ -403,11 +401,11 @@ namespace MusicSpatializer
     }
 
 
-    public class audioReader : MonoBehaviour
+    public class AudioReader : MonoBehaviour
     {
         public int channel = 0;
         public bool allChannels = false;
-        public audioSplitter splitter;
+        public AudioSplitter splitter;
 
         // Start is called before the first frame update
         void Start()
@@ -458,7 +456,7 @@ namespace MusicSpatializer
         }
     }
 
-    public class silencer : MonoBehaviour
+    public class Silencer : MonoBehaviour
     {
         // Start is called before the first frame update
         void Start()
