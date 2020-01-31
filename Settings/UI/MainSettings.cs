@@ -16,26 +16,26 @@ namespace MusicSpatializer.Settings.UI
         [UIValue("musicspatializer-enabled")]
         public bool Disabled
         {
-            get => Configuration.configClass.enabled;
-            set => Configuration.configClass.enabled = value;
+            get => Configuration.ConfigClass.enabled;
+            set => Configuration.ConfigClass.enabled = value;
         }
 
         [UIValue("musicspatializer-enable-360")]
         public bool Disable_360 {
-            get => Configuration.configClass.enable360;
-            set => Configuration.configClass.enable360 = value;
+            get => Configuration.ConfigClass.enable360;
+            set => Configuration.ConfigClass.enable360 = value;
         }
 
         [UIValue("musicspatializer-enable-resonance")]
         public bool Disable_resonance {
-            get => Configuration.configClass.enableResonance;
-            set => Configuration.configClass.enableResonance = value;
+            get => Configuration.ConfigClass.enableResonance;
+            set => Configuration.ConfigClass.enableResonance = value;
         }
 
         [UIValue("musicspatializer-debugspheres")]
         public bool DebugSpheres {
-            get => Configuration.configClass.debugSpheres;
-            set => Configuration.configClass.debugSpheres = value;
+            get => Configuration.ConfigClass.debugSpheres;
+            set => Configuration.ConfigClass.debugSpheres = value;
         }
 
 

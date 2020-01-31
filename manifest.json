@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/nike4613/ModSaber-MetadataFileSchema/master/Schema.json",
   "author": "SBoys3.com",
-  "description": "Makes the audio 3D when wearing headphones. Also in 360 maps the audio will follow the triangle.",
+  "description": "Makes the audio 3D when wearing headphones. Also in 360 maps the music will follow the triangle.",
   "gameVersion": "1.6.1",
   "id": "MusicSpatializer",
   "name": "Music Spatializer",

@@ -19,7 +19,7 @@ namespace MusicSpatializer.Settings
         private static IConfigProvider configProvider;
 
 
-        public static PluginConfig configClass { get; internal set; } = new PluginConfig();
+        public static PluginConfig ConfigClass { get; internal set; } = new PluginConfig();
 
         internal static void Init(IConfigProvider cfgProvider)
         {
@@ -41,10 +41,10 @@ namespace MusicSpatializer.Settings
         {
             
 
-            config.Value.enabled = configClass.enabled;
-            config.Value.enable360 = configClass.enable360;
-            config.Value.enableResonance = configClass.enableResonance;
-            config.Value.debugSpheres = configClass.debugSpheres;
+            config.Value.enabled = ConfigClass.enabled;
+            config.Value.enable360 = ConfigClass.enable360;
+            config.Value.enableResonance = ConfigClass.enableResonance;
+            config.Value.debugSpheres = ConfigClass.debugSpheres;
 
             // Store configuration
             configProvider.Store(config.Value);
@@ -52,10 +52,10 @@ namespace MusicSpatializer.Settings
 
         private static void LoadConfig()
         {
-            configClass.enabled = config.Value.enabled;
-            configClass.enable360 = config.Value.enable360;
-            configClass.enableResonance = config.Value.enableResonance;
-            configClass.debugSpheres = config.Value.debugSpheres;
+            ConfigClass.enabled = config.Value.enabled;
+            ConfigClass.enable360 = config.Value.enable360;
+            ConfigClass.enableResonance = config.Value.enableResonance;
+            ConfigClass.debugSpheres = config.Value.debugSpheres;
         }
 
         /// <summary>
