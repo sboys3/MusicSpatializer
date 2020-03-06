@@ -11,6 +11,7 @@ namespace MusicSpatializer.Settings
         public bool enabled = true;
         public bool enable360 = true;
         public bool enableResonance = true;
+        public bool enableBassBoost = false;
         public bool debugSpheres = false;
     }
     public class Configuration
@@ -44,6 +45,7 @@ namespace MusicSpatializer.Settings
             config.Value.enabled = ConfigClass.enabled;
             config.Value.enable360 = ConfigClass.enable360;
             config.Value.enableResonance = ConfigClass.enableResonance;
+            config.Value.enableBassBoost = ConfigClass.enableBassBoost;
             config.Value.debugSpheres = ConfigClass.debugSpheres;
 
             // Store configuration
@@ -55,6 +57,7 @@ namespace MusicSpatializer.Settings
             ConfigClass.enabled = config.Value.enabled;
             ConfigClass.enable360 = config.Value.enable360;
             ConfigClass.enableResonance = config.Value.enableResonance;
+            ConfigClass.enableBassBoost = config.Value.enableBassBoost;
             ConfigClass.debugSpheres = config.Value.debugSpheres;
         }
 

@@ -101,6 +101,10 @@
       <HintPath>.\beatsaber\Plugins\BSML.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="MainAssembly">
+      <HintPath>.\beatsaber\Beat Saber_Data\Managed\MainAssembly.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Plugin.cs" />

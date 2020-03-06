@@ -11,6 +11,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using MusicSpatializer.Settings;
 using MusicSpatializer.Settings.UI;
+using UnityEngine.Audio;
+
 
 namespace MusicSpatializer
 {
@@ -18,8 +20,8 @@ namespace MusicSpatializer
 
 
         public Logger log;
-        public const string Name = "MusicSpatializer";
-        public const  string Version = "1.0.2";
+        public const string Name = "Music Spatializer";
+        //public const  string Version = "1.0.2";
         
 
         public void Init(Logger logger, [Config.Prefer("json")] IConfigProvider cfgProvider, PluginLoader.PluginMetadata metadata)
@@ -155,11 +157,21 @@ namespace MusicSpatializer
                     GameObject songControl = go.gameObject;
                     GameObject center = new GameObject();
                     center.transform.parent = songControl.transform;
-                    
-                    //Log("obj name: {0}", songControll.name);
+
+                    //Log("obj name: {0}", songControl.name);
+
+                    MainSettingsModelSO[] gameSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>();
+                    float volume = gameSettings[0].volume.value;
+                    //Log("volume: {0}", volume);
+                    songControl.GetComponent<AudioSource>().volume = volume;
+
                     AudioSplitter splitter=songControl.AddComponent<AudioSplitter>();
                     SpeakerCreator speakers= center.AddComponent<SpeakerCreator>();
                     speakers.splitter = splitter;
+                    if (Configuration.ConfigClass.enableBassBoost == true)
+                    {
+                        speakers.bassBoost = true;
+                    }
                     if (Configuration.ConfigClass.enableResonance==false)
                     {
                         speakers.resonance = false;
@@ -215,10 +227,12 @@ namespace MusicSpatializer
         public GameObject speakerLeft;
         public GameObject speakerRight;
         public GameObject speakerResonance;
+        public GameObject speakerBass;
         public float frontDistance = 5;
         public float sideDistance = 3f;
         public AudioSplitter splitter;
         public bool resonance = true;
+        public bool bassBoost = false;
         public bool doRotation = true;
         public bool debugSpheres = false;
         private GameObject rotationMarker;
@@ -229,10 +243,11 @@ namespace MusicSpatializer
         {
             Create();
         }
-
+        
         // Update is called once per frame
         void Update()
         {
+
             //sideDistance += 0.01f;
             //Create();
             if (doRotation)
@@ -277,7 +292,7 @@ namespace MusicSpatializer
             AudioReader chfilt = speaker.AddComponent<AudioReader>();
             chfilt.channel = channel;
             chfilt.splitter = splitter;
-            if (channel == -1)
+            if (channel == -1 || channel == 21)
             {
                 chfilt.allChannels = true;
             }
@@ -308,6 +323,16 @@ namespace MusicSpatializer
                 AudioReverbZone reverb = speaker.AddComponent<AudioReverbZone>();
                 reverb.reverbPreset = AudioReverbPreset.Hangar;
             }
+
+
+            if (channel == 21)
+            {
+                AudioLowPassFilter lowpass = speaker.AddComponent<AudioLowPassFilter>();
+                lowpass.cutoffFrequency = 300;
+                //source.spatialize = false;
+                source.volume = 0.5f;
+            }
+
             //channel_filter chfilt = speaker.AddComponent<channel_filter>();
             //chfilt.channel = channel;
 
@@ -329,6 +354,10 @@ namespace MusicSpatializer
             {
                 speakerResonance.transform.localPosition = new Vector3(0, 3, 0);
             }
+            if (speakerBass)
+            {
+                speakerBass.transform.localPosition = new Vector3(0, -3f, 10f);
+            }
         }
 
         void Create()
@@ -346,6 +375,10 @@ namespace MusicSpatializer
             if (resonance)
             {
                 speakerResonance = NewSpeaker(-1);
+            }
+            if (bassBoost)
+            {
+                speakerBass = NewSpeaker(21);
             }
             PositionSpeakers();
         }
