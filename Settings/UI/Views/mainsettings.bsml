@@ -15,6 +15,10 @@
                 get-event="refresh-musicspatializer-values"
                 hover-hint='Adds a small amount of echo. You can hear it if you pause in the middle of a song.' />
  
+  <bool-setting text='Enable bass boost' value='musicspatializer-enable-bass-boost'
+                get-event="refresh-musicspatializer-values"
+                hover-hint='Adds a virtual subwoofer. You may need to turn down the in game volume to prevent clipping on some songs.' />
+ 
   <bool-setting text='Show debug spheres' value='musicspatializer-debugspheres'
                 get-event="refresh-musicspatializer-values"
                 hover-hint='Show the location of the audio sources with ugly white spheres.' />

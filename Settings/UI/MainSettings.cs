@@ -32,6 +32,12 @@ namespace MusicSpatializer.Settings.UI
             set => Configuration.ConfigClass.enableResonance = value;
         }
 
+        [UIValue("musicspatializer-enable-bass-boost")]
+        public bool enableBassBoost {
+            get => Configuration.ConfigClass.enableBassBoost;
+            set => Configuration.ConfigClass.enableBassBoost = value;
+        }
+
         [UIValue("musicspatializer-debugspheres")]
         public bool DebugSpheres {
             get => Configuration.ConfigClass.debugSpheres;
