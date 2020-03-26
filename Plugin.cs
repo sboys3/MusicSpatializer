@@ -91,12 +91,12 @@ namespace MusicSpatializer
 
         private void Load()
         {
-            //Configuration.Load();
+
         }
 
         private void Unload()
         {
-            //Configuration.Save();
+
         }
 
 
@@ -125,11 +125,17 @@ namespace MusicSpatializer
                     Log("Component name: {0}", ctype.ToString());
                 }//*/
             }
+
+            /*
+            Log("===================================================");
+            Transform[] allTransforms = UnityEngine.Object.FindObjectsOfType<Transform>();
+            foreach (Transform go in allTransforms)
+                    Log("trans name: {0}", go.name);*/
         }
 
         public void Inject(Scene scene)
         {
-            if (Configuration.ConfigClass.enabled == false)
+            if (Configuration.config.enabled == false)
             {
                 return;
             }
@@ -153,27 +159,28 @@ namespace MusicSpatializer
                     MainSettingsModelSO[] gameSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>();
                     float volume = gameSettings[0].volume.value;
                     //Log("volume: {0}", volume);
-                    songControl.GetComponent<AudioSource>().volume = volume;
-
+                    
                     AudioSplitter splitter=songControl.AddComponent<AudioSplitter>();
                     SpeakerCreator speakers= center.AddComponent<SpeakerCreator>();
                     speakers.splitter = splitter;
-                    if (Configuration.ConfigClass.enableBassBoost == true)
+                    if (Configuration.config.enableBassBoost == true)
                     {
+                        volume = volume * 0.75f;
                         speakers.bassBoost = true;
                     }
-                    if (Configuration.ConfigClass.enableResonance==false)
+                    if (Configuration.config.enableResonance==false)
                     {
                         speakers.resonance = false;
                     }
-                    if (Configuration.ConfigClass.enable360 == false)
+                    if (Configuration.config.enable360 == false)
                     {
                         speakers.doRotation = false;
                     }
-                    if (Configuration.ConfigClass.debugSpheres)
+                    if (Configuration.config.debugSpheres)
                     {
                         speakers.debugSpheres = true;
                     }
+                    songControl.GetComponent<AudioSource>().volume = volume;
                     Log("Spatializer attached to audio source");
                 }
                 
@@ -187,25 +194,7 @@ namespace MusicSpatializer
                 }*/
             }//*/
 
-               /*
-            AudioTimeSyncController audioController = GameObject.FindObjectsOfType<AudioTimeSyncController>()[0];
-            GameObject go2 = audioController.gameObject;
-
-            Log("obj name: {0}", go2.name);*/
-            /*
-            GameObject songControll = rootObject.transform.Find("SongController").gameObject;
-            
-            Log("1111111111111111111111");
-            Log("obj name: {0}", songControll.name);
-            songControll.AddComponent<audioSplitter>();
-            Log("obj name: {0}", songControll.name);
-            */
-            /*
-            Log("===================================================");
-            Transform[] allTransforms = UnityEngine.Object.FindObjectsOfType<Transform>();
-            foreach (Transform go in allTransforms)
-                    Log("trans name: {0}", go.name);*/
-            //UnityEngine.SceneManagement.Scene.
+               
         }
     }
 

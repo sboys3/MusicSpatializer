@@ -16,32 +16,32 @@ namespace MusicSpatializer.Settings.UI
         [UIValue("musicspatializer-enabled")]
         public bool Disabled
         {
-            get => Configuration.ConfigClass.enabled;
-            set => Configuration.ConfigClass.enabled = value;
+            get => Configuration.config.enabled;
+            set => Configuration.config.enabled = value;
         }
 
         [UIValue("musicspatializer-enable-360")]
         public bool Disable_360 {
-            get => Configuration.ConfigClass.enable360;
-            set => Configuration.ConfigClass.enable360 = value;
+            get => Configuration.config.enable360;
+            set => Configuration.config.enable360 = value;
         }
 
         [UIValue("musicspatializer-enable-resonance")]
         public bool Disable_resonance {
-            get => Configuration.ConfigClass.enableResonance;
-            set => Configuration.ConfigClass.enableResonance = value;
+            get => Configuration.config.enableResonance;
+            set => Configuration.config.enableResonance = value;
         }
 
         [UIValue("musicspatializer-enable-bass-boost")]
         public bool enableBassBoost {
-            get => Configuration.ConfigClass.enableBassBoost;
-            set => Configuration.ConfigClass.enableBassBoost = value;
+            get => Configuration.config.enableBassBoost;
+            set => Configuration.config.enableBassBoost = value;
         }
 
         [UIValue("musicspatializer-debugspheres")]
         public bool DebugSpheres {
-            get => Configuration.ConfigClass.debugSpheres;
-            set => Configuration.ConfigClass.debugSpheres = value;
+            get => Configuration.config.debugSpheres;
+            set => Configuration.config.debugSpheres = value;
         }
 
 
@@ -61,7 +61,7 @@ namespace MusicSpatializer.Settings.UI
         /// </summary>
         private void StoreConfiguration()
         {
-            //Configuration.Save();
+            Configuration.Save();
         }
 
         /// <summary>
@@ -69,7 +69,6 @@ namespace MusicSpatializer.Settings.UI
         /// </summary>
         private void ReloadConfiguration()
         {
-            //Configuration.Reload();
             RefreshModSettingsUI();
         }
 
