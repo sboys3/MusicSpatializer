@@ -10,15 +10,6 @@ using UnityEngine;
 
 namespace MusicSpatializer.Settings
 {
-    public class PluginConfigOld
-    {
-        public bool RegenerateConfig = false;
-        public bool enabled = true;
-        public bool enable360 = true;
-        public bool enableResonance = true;
-        public bool enableBassBoost = false;
-        public bool debugSpheres = false;
-    }
     public class PluginConfig
     {
         public static PluginConfig Instance { get; set; }
@@ -45,114 +36,18 @@ namespace MusicSpatializer.Settings
     }
     public class Configuration
     {
-        private static Ref<PluginConfig> config;
-        private static ConfigProvider configProvider;
-        private static Value currentConfig;
 
-        public static PluginConfig ConfigClass;
+        public static PluginConfig config;
 
         internal static void Init(Config cfgProvider)
         {
             PluginConfig.Instance = cfgProvider.Generated<PluginConfig>();
-            ConfigClass = PluginConfig.Instance;
-            //Console.WriteLine("Hello {0}", configProvider == null);
-            //configProvider = cfgProvider;
-            /*config = cfgProvider.MakeLink<PluginConfig>((p, v) =>
-            {
-                if (v.Value == null || v.Value.RegenerateConfig)
-                {
-                    p.Store(v.Value = new PluginConfig() { RegenerateConfig = false });
-                }
-                config = v;
-            });*/
+            config = PluginConfig.Instance;
         }
 
-        /*
-        private static void SaveValue<U>(string name, U value)
-        {
-            try
-            {
-                currentConfig.SetField<Value, U>(name, value);
-            }
-            catch (MissingFieldException e)
-            {
-
-            }
-        }
-
-        /// <summary>
-        /// Save Configuration
-        /// </summary>
         internal static void Save()
         {
-
-            SaveValue<bool>("enabled", ConfigClass.enabled);
-            SaveValue<bool>("enable360", ConfigClass.enable360);
-            SaveValue<bool>("enableResonance", ConfigClass.enableResonance);
-            SaveValue<bool>("enableBassBoost", ConfigClass.enableBassBoost);
-            SaveValue<bool>("debugSpheres", ConfigClass.debugSpheres);
-            SaveValue<bool>("RegenerateConfig", ConfigClass.RegenerateConfig);
-
-            // Store configuration
-            configProvider.Store(currentConfig);
+            config.Changed();
         }
-
-        private static U LoadValueOrDefault<U>(string name, U defaultValue)
-        {
-            try
-            {
-                return currentConfig.GetField<U, Value>(name);
-            } catch (MissingFieldException e)
-            {
-                return defaultValue;
-            }
-        }
-
-        private static void ResetConfig()
-        {
-            ConfigClass = new PluginConfig();
-            Save();
-            LoadConfig();
-        }
-
-        private static void LoadConfig()
-        {
-            
-            currentConfig = configProvider.Load();
-            if (currentConfig==null)
-            {
-                ResetConfig();
-                return;
-            }
-            ConfigClass.RegenerateConfig = LoadValueOrDefault <bool> ("RegenerateConfig", ConfigClass.RegenerateConfig);
-            if (ConfigClass.RegenerateConfig)
-            {
-                ResetConfig();
-                return;
-            }
-            ConfigClass.enabled = LoadValueOrDefault <bool> ("enabled", ConfigClass.enabled);
-            ConfigClass.enable360 = LoadValueOrDefault <bool> ("enable360", ConfigClass.enable360);
-            ConfigClass.enableResonance = LoadValueOrDefault <bool> ("enableResonance", ConfigClass.enableResonance);
-            ConfigClass.enableBassBoost = LoadValueOrDefault <bool> ("enableBassBoost", ConfigClass.enableBassBoost);
-            ConfigClass.debugSpheres = LoadValueOrDefault <bool> ("debugSpheres", ConfigClass.debugSpheres);
-        }
-
-        /// <summary>
-        /// Load Configuration
-        /// </summary>
-        internal static void Load()
-        {
-            LoadConfig();
-        }
-
-        /// <summary>
-        /// Reload configuration
-        /// </summary>
-        internal static void Reload()
-        {
-            LoadConfig();
-        }
-        */
-        
     }
 }
