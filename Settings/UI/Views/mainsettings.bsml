@@ -17,7 +17,7 @@
  
   <bool-setting text='Enable bass boost' value='musicspatializer-enable-bass-boost'
                 get-event="refresh-musicspatializer-values"
-                hover-hint='Adds a virtual subwoofer. You may need to turn down the in game volume to prevent clipping on some songs.' />
+                hover-hint='Adds a virtual subwoofer.' />
  
   <bool-setting text='Show debug spheres' value='musicspatializer-debugspheres'
                 get-event="refresh-musicspatializer-values"

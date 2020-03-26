@@ -34,15 +34,7 @@ namespace MusicSpatializer
             SceneManager.sceneLoaded += OnSceneLoaded;
             Log("Spatializer Init");
         }
-
-        public void OnActiveSceneChanged(Scene fromeScene, Scene toScene)
-        {
-            //Log("scene name : {0}", toScene.name);
-            if (toScene.name == "MenuViewControllers" && fromeScene.name == "EmptyTransition")
-            {
-                BSMLSettings.instance.AddSettingsMenu("Music Spatializer", "MusicSpatializer.Settings.UI.Views.mainsettings.bsml", MainSettings.instance);
-            }
-        }
+        
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
             /*
