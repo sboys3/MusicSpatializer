@@ -16,21 +16,27 @@ using UnityEngine.Audio;
 
 namespace MusicSpatializer
 {
-    public class Plugin : IBeatSaberPlugin {
+    [Plugin(RuntimeOptions.SingleStartInit)]
+    public class Plugin {
 
 
         public Logger log;
         public const string Name = "Music Spatializer";
-        //public const  string Version = "1.0.2";
-        
 
-        public void Init(Logger logger, [Config.Prefer("json")] IConfigProvider cfgProvider, PluginLoader.PluginMetadata metadata)
+        [Init]
+        public void Init(Logger logger, Config conf)
         {
             log = logger;
-            Configuration.Init(cfgProvider);
+            //Console.WriteLine("Hello {0}", cfgProvider == null);
+            //ConfigProvider configProvider;
+            //Configuration.Init(cfgProvider);
+            Configuration.Init(conf);
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            Log("Spatializer Init");
         }
 
-        public void OnActiveSceneChanged(Scene fromeScene, Scene toScene) {
+        public void OnActiveSceneChanged(Scene fromeScene, Scene toScene)
+        {
             //Log("scene name : {0}", toScene.name);
             if (toScene.name == "MenuViewControllers" && fromeScene.name == "EmptyTransition")
             {
@@ -46,7 +52,11 @@ namespace MusicSpatializer
                 Log("\tscene name : {0}", s.name);
                 LogGameobjects(s);
             }//*/
-            
+            if (scene.name == "MenuViewControllers") // only run in standard level scene
+            {
+                BSMLSettings.instance.AddSettingsMenu("Music Spatializer", "MusicSpatializer.Settings.UI.Views.mainsettings.bsml", MainSettings.instance);
+            }
+
             if (scene.name == "GameplayCore") // only run in standard level scene
             {
                 Inject(scene);
@@ -61,55 +71,35 @@ namespace MusicSpatializer
             // PCInit HealthWarning MenuViewControllers MenuCore GameCore
             if (scene.name == "HealthWarning") 
             {
-                //harmonyInstance.PatchAll();
             }
 
             
         }
-        public void OnSceneUnloaded(Scene scene) {
-
-        }
-        //public void Init(object thisWillBeNull, Logger logger) {
-        //log = logger;
-
-        //}
-        /* 
         
-        public void OnLevelWasLoaded(int level)
-        {
 
-        }
-
-        public void OnLevelWasInitialized(int level)
-        {
-        }*/
-
-        public void OnApplicationStart()
+        [OnStart]
+        public void OnStart()
         {
             Load();
         }
-        //public void OnEnable() => Load();
-        //public void OnDisable() => Unload();
-        public void OnApplicationQuit() => Unload();
+
+        [OnExit]
+        public void OnExit()
+        {
+            Unload();
+        }
 
         private void Load()
         {
-            Configuration.Load();
+            //Configuration.Load();
         }
 
         private void Unload()
         {
-            Configuration.Save();
+            //Configuration.Save();
         }
 
 
-        public void OnUpdate()
-        {
-        }
-
-        public void OnFixedUpdate()
-        {
-        }
 
         public static void Log(string format, params object[] args) {
             Console.WriteLine($"[{Name}] " + format, args);
