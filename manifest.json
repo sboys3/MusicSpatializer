@@ -8,8 +8,6 @@
   "icon": "MusicSpatializer.icon.png",
   "version": "1.0.3",
   "dependsOn": {
-    "BSIPA": "^3.13.4",
-    "BeatSaberMarkupLanguage": "^1.1.0"
   },
   "features": []
 }

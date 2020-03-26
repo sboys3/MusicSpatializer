@@ -61,7 +61,7 @@ namespace MusicSpatializer.Settings.UI
         /// </summary>
         private void StoreConfiguration()
         {
-            Configuration.Save();
+            //Configuration.Save();
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace MusicSpatializer.Settings.UI
         /// </summary>
         private void ReloadConfiguration()
         {
-            Configuration.Reload();
+            //Configuration.Reload();
             RefreshModSettingsUI();
         }
 
