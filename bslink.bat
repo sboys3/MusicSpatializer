@@ -1,3 +1,3 @@
 cd "%~dp0"
 rmdir beatsaber
-mklink /D beatsaber "..\..\Beat Saber 1.8.0"
+mklink /D beatsaber "C:\Program Files (x86)\Steam\steamapps\common\Beat Saber"
