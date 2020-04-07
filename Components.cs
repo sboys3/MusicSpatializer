@@ -191,6 +191,7 @@ namespace MusicSpatializer
 
         public float[][] channelData;
         public bool[] beenUsed;
+        public bool ready = false;
         // Start is called before the first frame update
         void Start()
         {
@@ -232,6 +233,7 @@ namespace MusicSpatializer
                 }
                 n++;
             }
+            ready = true;
         }
     }
 
@@ -271,8 +273,16 @@ namespace MusicSpatializer
             //source.outputAudioMixerGroup = mainSource.outputAudioMixerGroup;
         }
 
+        
+
         void OnAudioFilterRead(float[] data, int channels)
         {
+
+            if(splitter.ready == false)
+            {
+                return;
+            }
+
             int dataLen = data.Length / channels;
             int n = 0;
 
