@@ -1,6 +1,6 @@
 ﻿<settings-container>
   <horizontal>
-    <text text='Music Spatializer Settings' font-size='5' />
+    <text text='Music Spatializer Settings'  font-size='7' />
   </horizontal>
 
   <bool-setting text='Enable Music Spatializer' value='musicspatializer-enabled'

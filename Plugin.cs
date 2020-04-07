@@ -20,19 +20,29 @@ namespace MusicSpatializer
     public class Plugin {
 
 
-        public Logger log;
+        public static IPA.Logging.Logger log;
         public const string Name = "Music Spatializer";
 
+        public struct PitchHookArgs
+        {
+            public AudioSource mainSource;
+            public GameObject songControl;
+        }
+        public delegate void PitchHookDelegate(PitchHookArgs args);
+        public static event PitchHookDelegate PitchHook;
+
+        public delegate void VoidDelegate();
+        public static event VoidDelegate SettingUiLoad;
+
+        public static event VoidDelegate LevelFailed;
+
         [Init]
-        public void Init(Logger logger, Config conf)
+        public void Init(IPA.Logging.Logger logger, Config conf)
         {
             log = logger;
-            //Console.WriteLine("Hello {0}", cfgProvider == null);
-            //ConfigProvider configProvider;
-            //Configuration.Init(cfgProvider);
             Configuration.Init(conf);
             SceneManager.sceneLoaded += OnSceneLoaded;
-            Log("Spatializer Init");
+            //Log("Spatializer Init");
         }
         
 
@@ -44,21 +54,18 @@ namespace MusicSpatializer
                 Log("\tscene name : {0}", s.name);
                 LogGameobjects(s);
             }//*/
-            if (scene.name == "MenuViewControllers") // only run in standard level scene
+            if (scene.name == "MenuViewControllers")
             {
                 BSMLSettings.instance.AddSettingsMenu("Music Spatializer", "MusicSpatializer.Settings.UI.Views.mainsettings.bsml", MainSettings.instance);
+                if(SettingUiLoad != null)
+                {
+                    SettingUiLoad.Invoke();
+                }
             }
 
             if (scene.name == "GameplayCore") // only run in standard level scene
             {
                 Inject(scene);
-                /*
-                Scene[] scenes = UnityEngine.SceneManagement.SceneManager.GetAllScenes();
-                foreach (Scene s in scenes)
-                {
-                    Log("actve scene : {0}", s.name);
-                    inject(s);
-                }*/
             }
             // PCInit HealthWarning MenuViewControllers MenuCore GameCore
             if (scene.name == "HealthWarning") 
@@ -72,23 +79,13 @@ namespace MusicSpatializer
         [OnStart]
         public void OnStart()
         {
-            Load();
+            
         }
 
         [OnExit]
         public void OnExit()
         {
-            Unload();
-        }
-
-        private void Load()
-        {
-
-        }
-
-        private void Unload()
-        {
-
+            
         }
 
 
@@ -96,7 +93,7 @@ namespace MusicSpatializer
         public static void Log(string format, params object[] args) {
             Console.WriteLine($"[{Name}] " + format, args);
         }
-
+        
 
         //this Function is only for debugging and should be unused in releases
         void LogGameobjects(Scene scene)
@@ -124,7 +121,7 @@ namespace MusicSpatializer
             foreach (Transform go in allTransforms)
                     Log("trans name: {0}", go.name);*/
         }
-
+        
         public void Inject(Scene scene)
         {
             if (Configuration.config.enabled == false)
@@ -143,21 +140,35 @@ namespace MusicSpatializer
                 if (go.name== "SongController")
                 {
                     GameObject songControl = go.gameObject;
-                    GameObject center = new GameObject();
+                    GameObject center = new GameObject("Music Spatializer Base");
                     center.transform.parent = songControl.transform;
 
                     //Log("obj name: {0}", songControl.name);
 
-                    MainSettingsModelSO[] gameSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>();
-                    float volume = gameSettings[0].volume.value;
-                    //Log("volume: {0}", volume);
+                    MainSettingsModelSO gameSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>()[0];
+                    AudioManagerSO audioManager = Resources.FindObjectsOfTypeAll<AudioManagerSO>()[0];
+                    SongController songController = songControl.GetComponent<SongController>();
+                    AudioSource mainSource = songControl.GetComponent<AudioSource>();
                     
+                    float volumeMultiplier = 1;
+                    volumeMultiplier = gameSettings.volume.value;
+                    //Log("volume: {0}", volume);
+
+
+                    if (PitchHook != null) {
+                        //Log("PitchHook");
+                        PitchHookArgs args = new PitchHookArgs();
+                        args.songControl = songControl;
+                        args.mainSource = mainSource;
+                        PitchHook.Invoke(args);
+                    }
                     AudioSplitter splitter=songControl.AddComponent<AudioSplitter>();
                     SpeakerCreator speakers= center.AddComponent<SpeakerCreator>();
                     speakers.splitter = splitter;
+                    speakers.pluginReference = this;
                     if (Configuration.config.enableBassBoost == true)
                     {
-                        volume = volume * 0.75f;
+                        volumeMultiplier = volumeMultiplier * 0.75f;
                         speakers.bassBoost = true;
                     }
                     if (Configuration.config.enableResonance==false)
@@ -172,7 +183,10 @@ namespace MusicSpatializer
                     {
                         speakers.debugSpheres = true;
                     }
-                    songControl.GetComponent<AudioSource>().volume = volume;
+                    //speakers.mixerGroup = mainSource.outputAudioMixerGroup;
+                    //audioManager.mainVolume = volumeMultiplier * audioManager.mainVolume;
+                    mainSource.volume = volumeMultiplier;
+                    //customAudioMixer.SetFloat()
                     Log("Spatializer attached to audio source");
                 }
                 
@@ -188,6 +202,20 @@ namespace MusicSpatializer
 
                
         }
+
+        public void InjectAfterStart()
+        {
+            StandardLevelGameplayManager gameplayManager = GameObject.FindObjectsOfType<StandardLevelGameplayManager>().FirstOrDefault();
+            MissionLevelGameplayManager gameplayManagerMission = GameObject.FindObjectsOfType<MissionLevelGameplayManager>().FirstOrDefault();
+            if (gameplayManagerMission != null)
+            {
+                gameplayManagerMission.levelFailedEvent += LevelFailed.Invoke;
+            }
+            if (gameplayManager != null)
+            {
+                gameplayManager.levelFailedEvent += LevelFailed.Invoke;
+            }
+        }
     }
 
 
@@ -202,23 +230,28 @@ namespace MusicSpatializer
         public float frontDistance = 5;
         public float sideDistance = 3f;
         public AudioSplitter splitter;
+        public AudioMixerGroup mixerGroup;
         public bool resonance = true;
         public bool bassBoost = false;
         public bool doRotation = true;
         public bool debugSpheres = false;
+        public Plugin pluginReference;
         private GameObject rotationMarker;
         private int rotationMarkerTries=10;
+
+
 
         // Start is called before the first frame update
         void Start()
         {
             Create();
+            pluginReference.InjectAfterStart();
         }
         
         // Update is called once per frame
         void Update()
         {
-
+            
             //sideDistance += 0.01f;
             //Create();
             if (doRotation)
@@ -269,6 +302,10 @@ namespace MusicSpatializer
             }
 
             AudioSource source = speaker.AddComponent<AudioSource>();
+            if (mixerGroup != null)
+            {
+                source.outputAudioMixerGroup = mixerGroup;
+            }
             source.spatialize = true;
             source.spatializePostEffects = true;
             source.dopplerLevel = 0;
@@ -414,13 +451,30 @@ namespace MusicSpatializer
         // Start is called before the first frame update
         void Start()
         {
-        
+
+
+            //Console.WriteLine("sample {0}", slitData[0]);
         }
 
         // Update is called once per frame
         void Update()
         {
-
+            /*
+            Console.WriteLine("======");
+            //Component[] comps = transform.GetComponents(typeof(Component));
+            Component[] comps = splitter.GetComponents(typeof(Component));
+            foreach (Component c in comps)
+            {
+                Type ctype = c.GetType();
+                Console.WriteLine("Component name: {0}", ctype.ToString());
+            }//*/
+            //AudioSource source=transform.GetComponent<AudioSource>();
+            //AudioSource mainSource=splitter.GetComponent<AudioSource>();
+            //Console.WriteLine("AudioSource vol:{0} active:{1} mute:{2}", source.volume, source.isPlaying, source.mute);
+            //Console.WriteLine("mainSource vol:{0} active:{1} mute:{2} priority:{3}", mainSource.volume, mainSource.isPlaying, mainSource.mute, mainSource.priority); ;
+            //source.Pause();
+            //source.Play();
+            //source.outputAudioMixerGroup = mainSource.outputAudioMixerGroup;
         }
 
         void OnAudioFilterRead(float[] data, int channels)
