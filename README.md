@@ -7,7 +7,7 @@ Dependencies: BSIPA and BSML
 
 1. Download or clone to get a local copy
 2. Edit `bslink.bat` to point to a BeatSaber installation
-3. Run `bslink.bat` as administrator to create a folder junction(symlink) to your BeatSaber installation
+3. Run `bslink.bat` as administrator to create a folder symlink to your BeatSaber installation
 4. Open `spatializer.sln` in in visual studio 2019
 5. Change the configuration from `Debug` to `Release` and Change the target from `Any Cpu` to `x64`
 6. Build solution(ctrl+shift+b)
