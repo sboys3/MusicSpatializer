@@ -6,7 +6,7 @@
   "id": "Music Spatializer",
   "name": "Music Spatializer",
   "icon": "MusicSpatializer.icon.png",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "dependsOn": {
     "BeatSaberMarkupLanguage": "^1.1.0"
   },
