@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using MusicSpatializer.Settings;
@@ -17,7 +19,8 @@ using UnityEngine.Audio;
 namespace MusicSpatializer
 {
     [Plugin(RuntimeOptions.SingleStartInit)]
-    public class Plugin {
+    public class Plugin
+    {
 
 
         public static IPA.Logging.Logger log;
@@ -44,9 +47,10 @@ namespace MusicSpatializer
             SceneManager.sceneLoaded += OnSceneLoaded;
             //Log("Spatializer Init");
         }
-        
 
-        public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode) {
+
+        public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
+        {
             /*
             Log("actve scene : {0}", scene.name);
             Scene[] scenes=UnityEngine.SceneManagement.SceneManager.GetAllScenes();
@@ -57,7 +61,7 @@ namespace MusicSpatializer
             if (scene.name == "MenuViewControllers")
             {
                 BSMLSettings.instance.AddSettingsMenu("Music Spatializer", "MusicSpatializer.Settings.UI.Views.mainsettings.bsml", MainSettings.instance);
-                if(SettingUiLoad != null)
+                if (SettingUiLoad != null)
                 {
                     SettingUiLoad.Invoke();
                 }
@@ -66,34 +70,36 @@ namespace MusicSpatializer
             if (scene.name == "GameplayCore") // only run in standard level scene
             {
                 Inject(scene);
+                //LogAudioListeners();
             }
             // PCInit HealthWarning MenuViewControllers MenuCore GameCore
-            if (scene.name == "HealthWarning") 
+            if (scene.name == "HealthWarning")
             {
             }
 
-            
+
         }
-        
+
 
         [OnStart]
         public void OnStart()
         {
-            
+
         }
 
         [OnExit]
         public void OnExit()
         {
-            
+
         }
 
 
 
-        public static void Log(string format, params object[] args) {
+        public static void Log(string format, params object[] args)
+        {
             Console.WriteLine($"[{Name}] " + format, args);
         }
-        
+
 
         //this Function is only for debugging and should be unused in releases
         void LogGameobjects(Scene scene)
@@ -105,11 +111,12 @@ namespace MusicSpatializer
             //.FindGameObjectsWithTag("Untagged");
             foreach (Transform go in allObjects)
             {
-                
+
                 Log("obj name: {0}", go.name);
                 //*
                 Component[] comps = go.GetComponents(typeof(Component));
-                foreach (Component c in comps) {
+                foreach (Component c in comps)
+                {
                     Type ctype = c.GetType();
                     Log("Component name: {0}", ctype.ToString());
                 }//*/
@@ -121,7 +128,25 @@ namespace MusicSpatializer
             foreach (Transform go in allTransforms)
                     Log("trans name: {0}", go.name);*/
         }
-        
+
+        private async void LogAudioListeners()
+        {
+            await Task.Delay(2000);
+            AudioListener[] listeners = Resources.FindObjectsOfTypeAll<AudioListener>();
+            foreach (AudioListener listener in listeners)
+            {
+                Log("listener obj name: {0}", listener.gameObject.name);
+                Transform parent = listener.gameObject.transform.parent;
+                int numParents = 4;
+                while (parent != null)
+                {
+                    string spaceString = new string(' ', numParents);
+                    Log("listener parent: {0}{1}", spaceString, parent.name);
+                    parent = parent.transform.parent;
+                    numParents += 2;
+                }
+            }
+        }
         public void Inject(Scene scene)
         {
             if (Configuration.config.enabled == false)
@@ -135,9 +160,10 @@ namespace MusicSpatializer
             //*
             Transform[] allObjects = rootObject.GetComponentsInChildren<Transform>();
             //.FindGameObjectsWithTag("Untagged");
-            foreach (Transform go in allObjects) {
+            foreach (Transform go in allObjects)
+            {
                 // if (go.activeInHierarchy)
-                if (go.name== "SongController")
+                if (go.name == "SongController")
                 {
                     GameObject songControl = go.gameObject;
                     GameObject center = new GameObject("Music Spatializer Base");
@@ -149,21 +175,22 @@ namespace MusicSpatializer
                     AudioManagerSO audioManager = Resources.FindObjectsOfTypeAll<AudioManagerSO>()[0];
                     SongController songController = songControl.GetComponent<SongController>();
                     AudioSource mainSource = songControl.GetComponent<AudioSource>();
-                    
+
                     float volumeMultiplier = 1;
                     volumeMultiplier = gameSettings.volume.value;
                     //Log("volume: {0}", volume);
 
 
-                    if (PitchHook != null) {
+                    if (PitchHook != null)
+                    {
                         //Log("PitchHook");
                         PitchHookArgs args = new PitchHookArgs();
                         args.songControl = songControl;
                         args.mainSource = mainSource;
                         PitchHook.Invoke(args);
                     }
-                    AudioSplitter splitter=songControl.AddComponent<AudioSplitter>();
-                    SpeakerCreator speakers= center.AddComponent<SpeakerCreator>();
+                    AudioSplitter splitter = songControl.AddComponent<AudioSplitter>();
+                    SpeakerCreator speakers = center.AddComponent<SpeakerCreator>();
                     speakers.splitter = splitter;
                     speakers.pluginReference = this;
                     if (Configuration.config.enableBassBoost == true)
@@ -171,7 +198,7 @@ namespace MusicSpatializer
                         volumeMultiplier = volumeMultiplier * 0.75f;
                         speakers.bassBoost = true;
                     }
-                    if (Configuration.config.enableResonance==false)
+                    if (Configuration.config.enableResonance == false)
                     {
                         speakers.resonance = false;
                     }
@@ -189,8 +216,8 @@ namespace MusicSpatializer
                     //customAudioMixer.SetFloat()
                     Log("Spatializer attached to audio source");
                 }
-                
-                
+
+
                 //Log("obj name: {0}", go.name);
                 /*
                 Component[] comps = go.GetComponents(typeof(Component));
@@ -200,7 +227,7 @@ namespace MusicSpatializer
                 }*/
             }//*/
 
-               
+
         }
 
         public void InjectAfterStart()
@@ -214,6 +241,35 @@ namespace MusicSpatializer
             if (gameplayManager != null)
             {
                 gameplayManager.levelFailedEvent += LevelFailed.Invoke;
+            }
+
+            InjectAfterStartLate();
+        }
+
+        public async void InjectAfterStartLate()
+        {
+            await Task.Delay(500);
+
+            //cleanup other peoples bullshit (people need to stop puting audiolisteners in their custom content)
+            GameObject audioListenerGo = GameObject.Find("AudioListener");
+            if (audioListenerGo != null)
+            {
+                AudioListener whatShouldBeTheOnlyOne = audioListenerGo.GetComponent<AudioListener>();
+                if (whatShouldBeTheOnlyOne != null)
+                {
+                    AudioListener[] listeners = Resources.FindObjectsOfTypeAll<AudioListener>();
+                    foreach (AudioListener listener in listeners)
+                    {
+                        if (!object.ReferenceEquals(listener, whatShouldBeTheOnlyOne))
+                        {
+                            if (listener.gameObject.activeInHierarchy)
+                            {
+                                Log("DON'T PUT AUDIOLISTENERS WHERE THEY SHOULDN'T BE: {0}", listener.gameObject.name);
+                                GameObject.Destroy(listener);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
