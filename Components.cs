@@ -23,6 +23,7 @@ namespace MusicSpatializer
         public GameObject speakerBass;
         public float frontDistance = 5;
         public float sideDistance = 3f;
+        public float volumeMultiplier = 1;
         public AudioSplitter splitter;
         public AudioMixerGroup mixerGroup;
         public bool resonance = true;
@@ -31,7 +32,7 @@ namespace MusicSpatializer
         public bool debugSpheres = false;
         public Plugin pluginReference;
         private GameObject rotationMarker;
-        private int rotationMarkerTries=10;
+        private int rotationMarkerTries = 10;
 
 
 
@@ -106,13 +107,13 @@ namespace MusicSpatializer
             source.clip = dclip;
             source.rolloffMode = AudioRolloffMode.Linear;
             source.spatialBlend = 1;
-            source.volume = 0.275f;
+            source.volume = 0.275f * volumeMultiplier;
             source.priority = 0;
             source.Play();
             if (channel == -1)
             {
                 source.spatialize = false;
-                source.volume = 0.2f;
+                source.volume = 0.2f * volumeMultiplier;
                 source.reverbZoneMix = 1.0f;
                 source.spatialBlend = 0;
 
@@ -132,7 +133,7 @@ namespace MusicSpatializer
                 AudioLowPassFilter lowpass = speaker.AddComponent<AudioLowPassFilter>();
                 lowpass.cutoffFrequency = 300;
                 //source.spatialize = false;
-                source.volume = 0.5f;
+                source.volume = 0.5f * volumeMultiplier;
             }
 
             //channel_filter chfilt = speaker.AddComponent<channel_filter>();
