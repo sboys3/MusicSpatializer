@@ -210,9 +210,10 @@ namespace MusicSpatializer
                     {
                         speakers.debugSpheres = true;
                     }
+                    speakers.volumeMultiplier = volumeMultiplier;
                     //speakers.mixerGroup = mainSource.outputAudioMixerGroup;
                     //audioManager.mainVolume = volumeMultiplier * audioManager.mainVolume;
-                    mainSource.volume = volumeMultiplier;
+                    //mainSource.volume = volumeMultiplier;
                     //customAudioMixer.SetFloat()
                     Log("Spatializer attached to audio source");
                 }
@@ -230,17 +231,23 @@ namespace MusicSpatializer
 
         }
 
+        void InvokeLevelFailed()
+        {
+            LevelFailed();
+        }
+
+        //run during the start of the SpeakerCreator in the scene
         public void InjectAfterStart()
         {
             StandardLevelGameplayManager gameplayManager = GameObject.FindObjectsOfType<StandardLevelGameplayManager>().FirstOrDefault();
             MissionLevelGameplayManager gameplayManagerMission = GameObject.FindObjectsOfType<MissionLevelGameplayManager>().FirstOrDefault();
             if (gameplayManagerMission != null)
             {
-                gameplayManagerMission.levelFailedEvent += LevelFailed.Invoke;
+                gameplayManagerMission.levelFailedEvent += InvokeLevelFailed;
             }
             if (gameplayManager != null)
             {
-                gameplayManager.levelFailedEvent += LevelFailed.Invoke;
+                gameplayManager.levelFailedEvent += InvokeLevelFailed;
             }
 
             InjectAfterStartLate();
@@ -250,7 +257,7 @@ namespace MusicSpatializer
         {
             await Task.Delay(500);
 
-            //cleanup other peoples bullshit (people need to stop puting audiolisteners in their custom content)
+            //clean up garbage AudioListeners (people need to stop puting audiolisteners in their custom content)
             GameObject audioListenerGo = GameObject.Find("AudioListener");
             if (audioListenerGo != null)
             {
