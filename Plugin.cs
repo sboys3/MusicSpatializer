@@ -233,7 +233,10 @@ namespace MusicSpatializer
 
         void InvokeLevelFailed()
         {
-            LevelFailed();
+            if (LevelFailed != null)
+            {
+                LevelFailed();
+            }
         }
 
         //run during the start of the SpeakerCreator in the scene
