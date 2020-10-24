@@ -63,7 +63,8 @@ namespace MusicSpatializer
                     //Console.WriteLine("not found Chevron");
                     if (rotationMarkerTries > 0)
                     {
-                        rotationMarker = GameObject.Find("SpawnRotationChevron");
+                        //rotationMarker = GameObject.Find("SpawnRotationChevron");
+                        rotationMarker = GameObject.Find("FlyingGameHUD");
                         if (rotationMarker != null)
                         {
                             sideDistance = 1.5f;
@@ -73,6 +74,32 @@ namespace MusicSpatializer
                     }
                 }
             }
+            if(splitter.gameObject.activeInHierarchy == false)
+            {
+                Remover();
+            }
+        }
+
+
+        void Remover()
+        {
+            if (splitter != null)
+            {
+                UnityEngine.Object.Destroy(splitter);
+            }
+            UnityEngine.Object.Destroy(this.gameObject);
+            pluginReference.InjectLooper(5);
+        }
+
+
+        void OnDestroy()
+        {
+            Remover();
+        }
+
+        void OnDisable()
+        {
+            Remover();
         }
 
         GameObject NewSpeaker(int channel)
@@ -200,6 +227,7 @@ namespace MusicSpatializer
             source.spatialBlend = 0;
             source.reverbZoneMix = 0;
             source.dopplerLevel = 0;
+            source.bypassEffects = false;
         }
 
         // Update is called once per frame
