@@ -9,7 +9,7 @@
   
   <bool-setting text='Enable 360 movement' value='musicspatializer-enable-360'
                 get-event="refresh-musicspatializer-values"
-                hover-hint='Make the music follow the triangle/chevron in 360 maps. When disabled the audio will remain in the original forward direction.' />
+                hover-hint='Make the music follow the score board/blocks in 360 maps. When disabled the audio will remain in the original forward direction.' />
   
   <bool-setting text='Enable resonance' value='musicspatializer-enable-resonance'
                 get-event="refresh-musicspatializer-values"

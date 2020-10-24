@@ -39,6 +39,8 @@ namespace MusicSpatializer
 
         public static event VoidDelegate LevelFailed;
 
+        private System.Timers.Timer recurringTimer;
+
         [Init]
         public void Init(IPA.Logging.Logger logger, Config conf)
         {
@@ -51,8 +53,9 @@ namespace MusicSpatializer
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
+            //Log("actve scene : {0}", scene.name);
             /*
-            Log("actve scene : {0}", scene.name);
+            
             Scene[] scenes=UnityEngine.SceneManagement.SceneManager.GetAllScenes();
             foreach (Scene s in scenes) {
                 Log("\tscene name : {0}", s.name);
@@ -61,17 +64,25 @@ namespace MusicSpatializer
             if (scene.name == "MenuViewControllers")
             {
                 BSMLSettings.instance.AddSettingsMenu("Music Spatializer", "MusicSpatializer.Settings.UI.Views.mainsettings.bsml", MainSettings.instance);
-                if (SettingUiLoad != null)
-                {
-                    SettingUiLoad.Invoke();
-                }
+                SettingUiLoad?.Invoke();
             }
 
-            if (scene.name == "GameplayCore") // only run in standard level scene
+            if (scene.name == "MultiplayerGameplay")
             {
-                Inject(scene);
-                //LogAudioListeners();
+                InjectLooper(10);
             }
+            else
+            {
+                //Inject();
+                InjectLooper(5);
+            }
+            
+
+            //if (scene.name == "GameplayCore" || scene.name == "StandardGameplay") // only run in standard level scene
+            //{
+
+            //LogAudioListeners();
+            //}
             // PCInit HealthWarning MenuViewControllers MenuCore GameCore
             if (scene.name == "HealthWarning")
             {
@@ -84,7 +95,7 @@ namespace MusicSpatializer
         [OnStart]
         public void OnStart()
         {
-
+            //SetTimer();
         }
 
         [OnExit]
@@ -102,8 +113,9 @@ namespace MusicSpatializer
 
 
         //this Function is only for debugging and should be unused in releases
-        void LogGameobjects(Scene scene)
+        async void LogGameobjects(Scene scene)
         {
+            //await Task.Delay(500);
             GameObject[] rootObjects = scene.GetRootGameObjects();
             GameObject rootObject = rootObjects.First<GameObject>();//.FindObjectsOfType<GameObject>();
             //*
@@ -119,6 +131,10 @@ namespace MusicSpatializer
                 {
                     Type ctype = c.GetType();
                     Log("Component name: {0}", ctype.ToString());
+                    if (ctype.ToString() == "UnityEngine.AudioSource")
+                    {
+                        Log("Component UnityEngine.AudioSource UnityEngine.AudioSource UnityEngine.AudioSource UnityEngine.AudioSource");
+                    }
                 }//*/
             }
 
@@ -147,25 +163,48 @@ namespace MusicSpatializer
                 }
             }
         }
-        public void Inject(Scene scene)
+
+        //run Inject multiple times over a time span
+        public async void InjectLooper(double seconds)
+        {
+            Inject();
+            int time = 0;
+            int sleepTime = 200;
+            while (time <= seconds * 1000) 
+            { 
+                await Task.Delay(sleepTime);
+                Inject();
+                time += sleepTime;
+            } 
+        }
+
+        public void Inject()
         {
             if (Configuration.config.enabled == false)
             {
                 return;
             }
+            
+            GameObject[] allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+
             //Log("===================================================");
-            //GameObject[] allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
-            GameObject[] rootObjects = scene.GetRootGameObjects();
-            GameObject rootObject = rootObjects.First<GameObject>();//.FindObjectsOfType<GameObject>();
-            //*
-            Transform[] allObjects = rootObject.GetComponentsInChildren<Transform>();
-            //.FindGameObjectsWithTag("Untagged");
-            foreach (Transform go in allObjects)
+            foreach (GameObject go in allObjects)
             {
-                // if (go.activeInHierarchy)
-                if (go.name == "SongController")
+                /*
+                if (go.activeInHierarchy && go.GetComponent<AudioSource>() != null && go.GetComponent<AudioReader>() == null)
+                {
+                    Log("found object: {0}", go.name);
+                }//*/
+                if (go.gameObject.activeInHierarchy && (go.name == "SongController" || go.name == "MultiplayerLocalInactivePlayerSongSyncController" || go.name == "SongPreviewAudioSource(Clone)" || go.name == "MultiplayerLocalInactivePlayerOutroAnimator" || go.name == "MultiplayerLocalActiveOutroAnimator")) 
                 {
                     GameObject songControl = go.gameObject;
+
+                    //prevent from it being attached multiple times
+                    if (songControl.GetComponent<AudioSplitter>() != null)
+                    {
+                        continue;
+                    }
+
                     GameObject center = new GameObject("Music Spatializer Base");
                     center.transform.parent = songControl.transform;
 
@@ -175,6 +214,8 @@ namespace MusicSpatializer
                     AudioManagerSO audioManager = Resources.FindObjectsOfTypeAll<AudioManagerSO>()[0];
                     SongController songController = songControl.GetComponent<SongController>();
                     AudioSource mainSource = songControl.GetComponent<AudioSource>();
+
+                    
 
                     float volumeMultiplier = 1;
                     volumeMultiplier = gameSettings.volume.value;
@@ -215,7 +256,10 @@ namespace MusicSpatializer
                     //audioManager.mainVolume = volumeMultiplier * audioManager.mainVolume;
                     //mainSource.volume = volumeMultiplier;
                     //customAudioMixer.SetFloat()
-                    Log("Spatializer attached to audio source");
+                    if (Configuration.config.debugSpheres)
+                    {
+                        Log("Spatializer attached to audio source");
+                    }
                 }
 
 
@@ -229,21 +273,30 @@ namespace MusicSpatializer
             }//*/
 
 
+            //Log("===================");
         }
 
         void InvokeLevelFailed()
         {
-            if (LevelFailed != null)
+            //Log("LevelFailed");
+            LevelFailed?.Invoke();
+        }
+        void MultiplayerFinishEvent(LevelCompletionResults results)
+        {
+            if (results.levelEndStateType == LevelCompletionResults.LevelEndStateType.Failed)
             {
-                LevelFailed();
+                //Log("Multiplayer LevelFailed");
+                InvokeLevelFailed();
             }
         }
+
 
         //run during the start of the SpeakerCreator in the scene
         public void InjectAfterStart()
         {
             StandardLevelGameplayManager gameplayManager = GameObject.FindObjectsOfType<StandardLevelGameplayManager>().FirstOrDefault();
             MissionLevelGameplayManager gameplayManagerMission = GameObject.FindObjectsOfType<MissionLevelGameplayManager>().FirstOrDefault();
+            MultiplayerPlayersManager multiplayerPlayersManager = GameObject.FindObjectsOfType<MultiplayerPlayersManager>().FirstOrDefault();
             if (gameplayManagerMission != null)
             {
                 gameplayManagerMission.levelFailedEvent += InvokeLevelFailed;
@@ -252,7 +305,10 @@ namespace MusicSpatializer
             {
                 gameplayManager.levelFailedEvent += InvokeLevelFailed;
             }
-
+            if (multiplayerPlayersManager != null)
+            {
+                multiplayerPlayersManager.playerDidFinishEvent += MultiplayerFinishEvent;
+            }
             InjectAfterStartLate();
         }
 
@@ -282,5 +338,20 @@ namespace MusicSpatializer
                 }
             }
         }
+
+
+        //not currently needed there are other ways of doing it
+        private void SetTimer()
+        {
+            recurringTimer = new System.Timers.Timer(1000);
+            recurringTimer.Elapsed += OnTimedEvent;
+            recurringTimer.AutoReset = true;
+            recurringTimer.Enabled = true;
+        }
+        private void OnTimedEvent(System.Object source, System.Timers.ElapsedEventArgs e)
+        {
+            //Inject();
+        }
+
     }
 }

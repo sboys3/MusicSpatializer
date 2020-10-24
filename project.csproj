@@ -106,6 +106,10 @@
       <HintPath>.\beatsaber\Beat Saber_Data\Managed\Main.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="GameplayCore">
+      <HintPath>.\beatsaber\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components.cs" />
