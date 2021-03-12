@@ -39,6 +39,8 @@ namespace MusicSpatializer
 
         public static event VoidDelegate LevelFailed;
 
+        private float lastStartTime = -1;
+
         private System.Timers.Timer recurringTimer;
 
         [Init]
@@ -53,10 +55,11 @@ namespace MusicSpatializer
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
-            //Log("actve scene : {0}", scene.name);
+
             /*
-            
-            Scene[] scenes=UnityEngine.SceneManagement.SceneManager.GetAllScenes();
+            Log("actve scene : {0}", scene.name);
+            LogGameobjects();
+            /*Scene[] scenes=UnityEngine.SceneManagement.SceneManager.GetAllScenes();
             foreach (Scene s in scenes) {
                 Log("\tscene name : {0}", s.name);
                 LogGameobjects(s);
@@ -113,30 +116,43 @@ namespace MusicSpatializer
 
 
         //this Function is only for debugging and should be unused in releases
-        async void LogGameobjects(Scene scene)
+        async void LogGameobjects()
         {
-            //await Task.Delay(500);
-            GameObject[] rootObjects = scene.GetRootGameObjects();
-            GameObject rootObject = rootObjects.First<GameObject>();//.FindObjectsOfType<GameObject>();
-            //*
-            Transform[] allObjects = rootObject.GetComponentsInChildren<Transform>();
-            //.FindGameObjectsWithTag("Untagged");
-            foreach (Transform go in allObjects)
+            await Task.Delay(5000);
+            Scene[] scenes = UnityEngine.SceneManagement.SceneManager.GetAllScenes();
+            foreach (Scene scene in scenes)
             {
-
-                Log("obj name: {0}", go.name);
-                //*
-                Component[] comps = go.GetComponents(typeof(Component));
-                foreach (Component c in comps)
+                Log("\tscene name : {0}", scene.name);
+                GameObject[] rootObjects = scene.GetRootGameObjects();
+                GameObject rootObject = rootObjects.First<GameObject>();//.FindObjectsOfType<GameObject>();
+                                                                        //*
+                Transform[] allObjects = rootObject.GetComponentsInChildren<Transform>();
+                //.FindGameObjectsWithTag("Untagged");
+                foreach (Transform go in allObjects)
                 {
-                    Type ctype = c.GetType();
-                    Log("Component name: {0}", ctype.ToString());
-                    if (ctype.ToString() == "UnityEngine.AudioSource")
+
+                    Log("\t\tobj name: {0}", go.name);
+                    //*
+                    Component[] comps = go.GetComponents(typeof(Component));
+                    foreach (Component c in comps)
                     {
-                        Log("Component UnityEngine.AudioSource UnityEngine.AudioSource UnityEngine.AudioSource UnityEngine.AudioSource");
-                    }
-                }//*/
+                        Type ctype = c.GetType();
+                        Log("\t\t\tComponent name: {0}", ctype.ToString());
+                        if (ctype.ToString() == "UnityEngine.AudioSource")
+                        {
+                            //Log("Component UnityEngine.AudioSource UnityEngine.AudioSource UnityEngine.AudioSource UnityEngine.AudioSource");
+                            Log("\t\t\t^^^^^^^^^^^^^^^^^^^^^^^^^");
+                        }
+                    }//*/
+                }
             }
+
+            AudioSource[] sources = UnityEngine.Object.FindObjectsOfType<AudioSource>();
+            foreach (AudioSource source in sources)
+            {
+                Log("\tsource name: {0}", source.gameObject.name);
+            }
+
 
             /*
             Log("===================================================");
@@ -195,7 +211,13 @@ namespace MusicSpatializer
                 {
                     Log("found object: {0}", go.name);
                 }//*/
-                if (go.gameObject.activeInHierarchy && (go.name == "SongController" || go.name == "MultiplayerLocalInactivePlayerSongSyncController" || go.name == "SongPreviewAudioSource(Clone)" || go.name == "MultiplayerLocalInactivePlayerOutroAnimator" || go.name == "MultiplayerLocalActiveOutroAnimator")) 
+                if (go.gameObject.activeInHierarchy && (
+                    go.name == "SongController" 
+                    || go.name == "BasicUIAudioManager"
+                    || go.name == "SongPreviewAudioSource(Clone)" 
+                    || go.name == "MultiplayerLocalInactivePlayerSongSyncController" 
+                    || go.name == "MultiplayerLocalInactivePlayerOutroAnimator" 
+                    || go.name == "MultiplayerLocalActiveOutroAnimator")) 
                 {
                     GameObject songControl = go.gameObject;
 
@@ -207,8 +229,10 @@ namespace MusicSpatializer
 
                     GameObject center = new GameObject("Music Spatializer Base");
                     center.transform.parent = songControl.transform;
+                    //songControl.transform.position = new Vector3(0, 0, 0);
+                    center.transform.localPosition = new Vector3(0, 0, 0);
 
-                    //Log("obj name: {0}", songControl.name);
+                    
 
                     MainSettingsModelSO gameSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>()[0];
                     AudioManagerSO audioManager = Resources.FindObjectsOfTypeAll<AudioManagerSO>()[0];
@@ -219,10 +243,17 @@ namespace MusicSpatializer
 
                     float volumeMultiplier = 1;
                     volumeMultiplier = gameSettings.volume.value;
+
+                    //aplify ui audio
+                    if (go.name == "BasicUIAudioManager")
+                    {
+                        volumeMultiplier *= 3;
+                    }
+
                     //Log("volume: {0}", volume);
 
 
-                    if (PitchHook != null)
+                    if (PitchHook != null && !(go.name == "BasicUIAudioManager" || go.name == "SongPreviewAudioSource(Clone)"))
                     {
                         //Log("PitchHook");
                         PitchHookArgs args = new PitchHookArgs();
@@ -258,7 +289,7 @@ namespace MusicSpatializer
                     //customAudioMixer.SetFloat()
                     if (Configuration.config.debugSpheres)
                     {
-                        Log("Spatializer attached to audio source");
+                        Log("Spatializer attached to audio source: {0}", songControl.name);
                     }
                 }
 
@@ -294,6 +325,13 @@ namespace MusicSpatializer
         //run during the start of the SpeakerCreator in the scene
         public void InjectAfterStart()
         {
+            //prevent being run multiple times repededly
+            if(Time.time - lastStartTime < 0.2)
+            {
+                return;
+            }
+            lastStartTime = Time.time;
+
             StandardLevelGameplayManager gameplayManager = GameObject.FindObjectsOfType<StandardLevelGameplayManager>().FirstOrDefault();
             MissionLevelGameplayManager gameplayManagerMission = GameObject.FindObjectsOfType<MissionLevelGameplayManager>().FirstOrDefault();
             MultiplayerPlayersManager multiplayerPlayersManager = GameObject.FindObjectsOfType<MultiplayerPlayersManager>().FirstOrDefault();
