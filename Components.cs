@@ -114,6 +114,7 @@ namespace MusicSpatializer
                 speaker = new GameObject();
             }
             speaker.transform.parent = transform;
+            speaker.name = "Music Spatializer Speaker";
 
             AudioReader chfilt = speaker.AddComponent<AudioReader>();
             chfilt.channel = channel;
@@ -220,20 +221,33 @@ namespace MusicSpatializer
         public float[][] channelData;
         public bool[] beenUsed;
         public bool ready = false;
+        AudioSource source;
+
         // Start is called before the first frame update
         void Start()
         {
-            AudioSource source = gameObject.GetComponent<AudioSource>();
-            source.spatialBlend = 0;
-            source.reverbZoneMix = 0;
-            source.dopplerLevel = 0;
-            source.bypassEffects = false;
+            
         }
 
         // Update is called once per frame
         void Update()
         {
+            if (source == null)
+            {
+                source = gameObject.GetComponent<AudioSource>();
+                source.spatialBlend = 0;
+                source.reverbZoneMix = 0;
+                source.dopplerLevel = 0;
+                source.bypassEffects = false;
+            }
 
+            if (source != null)
+            {
+                source.spatialBlend = 0;
+                source.reverbZoneMix = 0;
+                source.dopplerLevel = 0;
+                source.bypassEffects = false;
+            }
         }
 
         void OnAudioFilterRead(float[] data, int channels)
