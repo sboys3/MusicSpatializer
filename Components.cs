@@ -42,11 +42,11 @@ namespace MusicSpatializer
             Create();
             pluginReference.InjectAfterStart();
         }
-        
+
         // Update is called once per frame
         void Update()
         {
-            
+
             //sideDistance += 0.01f;
             //Create();
             if (doRotation)
@@ -55,7 +55,7 @@ namespace MusicSpatializer
                 if (rotationMarker != null)
                 {
                     //Console.WriteLine("found Chevron");
-                    
+
                     transform.rotation = rotationMarker.transform.rotation;
                 }
                 else
@@ -74,7 +74,7 @@ namespace MusicSpatializer
                     }
                 }
             }
-            if(splitter.gameObject.activeInHierarchy == false)
+            if (splitter.gameObject.activeInHierarchy == false)
             {
                 Remover();
             }
@@ -137,6 +137,7 @@ namespace MusicSpatializer
             source.spatialBlend = 1;
             source.volume = 0.275f * volumeMultiplier;
             source.priority = 0;
+            source.ignoreListenerPause = true;
             source.Play();
             if (channel == -1)
             {
@@ -220,13 +221,15 @@ namespace MusicSpatializer
 
         public float[][] channelData;
         public bool[] beenUsed;
+        public int iteration = 0;
         public bool ready = false;
         AudioSource source;
+        //float lastTime = 0;
 
         // Start is called before the first frame update
         void Start()
         {
-            
+
         }
 
         // Update is called once per frame
@@ -240,28 +243,40 @@ namespace MusicSpatializer
                 source.dopplerLevel = 0;
                 source.bypassEffects = false;
             }
-
-            if (source != null)
+            else
             {
                 source.spatialBlend = 0;
                 source.reverbZoneMix = 0;
                 source.dopplerLevel = 0;
                 source.bypassEffects = false;
+                /*if (source.time == 0)
+                {
+                    source.time = lastTime;
+                    source.Play();
+                }
+                lastTime = source.time;*/
             }
         }
 
         void OnAudioFilterRead(float[] data, int channels)
         {
             int dataLen = data.Length / channels;
-            channelData = new float[channels][];
-            beenUsed = new bool[channels];
+            if (channelData?.Length != channels)
+            {
+                channelData = new float[channels][];
+                beenUsed = new bool[channels];
+            }
             int c = 0;
             while (c < channels)
             {
-                channelData[c] = new float[dataLen];
+                if (channelData[c]?.Length != dataLen)
+                {
+                    channelData[c] = new float[dataLen];
+                }
                 beenUsed[c] = false;
                 c++;
             }
+            iteration++;
 
             int n = 0;
             while (n < dataLen)
@@ -285,7 +300,9 @@ namespace MusicSpatializer
     {
         public int channel = 0;
         public bool allChannels = false;
+        private int iteration = 0;
         public AudioSplitter splitter;
+        AudioSource source;
 
         // Start is called before the first frame update
         void Start()
@@ -298,6 +315,23 @@ namespace MusicSpatializer
         // Update is called once per frame
         void Update()
         {
+            if (source == null)
+            {
+                source = gameObject.GetComponent<AudioSource>();
+            }
+            else
+            {
+                if (source.isPlaying == false)
+                {
+                    if (MusicSpatializer.Settings.Configuration.config.debugSpheres)
+                    {
+                        Plugin.log.Info("Speaker restarted");
+                    }
+                    source.Play();
+
+                }
+            }
+
             /*
             Console.WriteLine("======");
             //Component[] comps = transform.GetComponents(typeof(Component));
@@ -316,15 +350,22 @@ namespace MusicSpatializer
             //source.outputAudioMixerGroup = mainSource.outputAudioMixerGroup;
         }
 
-        
+
 
         void OnAudioFilterRead(float[] data, int channels)
         {
 
-            if(splitter.ready == false)
+            if (splitter.ready == false)
             {
                 return;
             }
+
+            //only run if there is new data
+            if (splitter.iteration - iteration <= 0)
+            {
+                return;
+            }
+            iteration = splitter.iteration;
 
             int dataLen = data.Length / channels;
             int n = 0;
@@ -390,6 +431,38 @@ namespace MusicSpatializer
                     i++;
                 }
                 n++;
+            }
+        }
+    }
+
+
+    //this fixes a bug in the base game where the song AudioSource gets stopped by unity because it runs out of virtual channels due to too many hitsounds
+    public class MainSongAudioSourceRestarterBugFix : MonoBehaviour
+    {
+        private AudioTimeSyncController audioTimeSyncController;
+        private AudioSource source;
+        // Start is called before the first frame update
+        void Start()
+        {
+            audioTimeSyncController = GetComponent<AudioTimeSyncController>();
+            source = GetComponent<AudioSource>();
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            if (source != null && audioTimeSyncController != null)
+            {
+                if (audioTimeSyncController.state == AudioTimeSyncController.State.Playing && audioTimeSyncController.songTime > 0 && audioTimeSyncController.songTime < audioTimeSyncController.songEndTime - 0.5f && source.isPlaying == false && source.time == 0)
+                {
+                    Plugin.log.Info("Song Time: " + audioTimeSyncController.songTime + " Song End Time: " + audioTimeSyncController.songEndTime);
+                    source.time = audioTimeSyncController.songTime;
+                    source.Play();
+                    if (Plugin.log != null)
+                    {
+                        Plugin.log.Error("Main song AudioSource had to be restarted. This is a bug in the base game.");
+                    }
+                }
             }
         }
     }

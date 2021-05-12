@@ -111,7 +111,8 @@ namespace MusicSpatializer
 
         public static void Log(string format, params object[] args)
         {
-            Console.WriteLine($"[{Name}] " + format, args);
+            //Console.WriteLine($"[{Name}] " + format, args);
+            log.Info(String.Format(format, args));
         }
 
 
@@ -239,7 +240,6 @@ namespace MusicSpatializer
                     SongController songController = songControl.GetComponent<SongController>();
                     AudioSource mainSource = songControl.GetComponent<AudioSource>();
 
-                    
 
                     float volumeMultiplier = 1;
                     volumeMultiplier = gameSettings.volume.value;
@@ -248,6 +248,11 @@ namespace MusicSpatializer
                     if (go.name == "BasicUIAudioManager")
                     {
                         volumeMultiplier *= 3;
+                    }
+
+                    if(go.name == "SongController" || go.name == "MultiplayerLocalInactivePlayerSongSyncController")
+                    {
+                        go.AddComponent<MainSongAudioSourceRestarterBugFix>();
                     }
 
                     //Log("volume: {0}", volume);
@@ -314,7 +319,7 @@ namespace MusicSpatializer
         }
         void MultiplayerFinishEvent(LevelCompletionResults results)
         {
-            if (results.levelEndStateType == LevelCompletionResults.LevelEndStateType.Failed)
+            if (results != null && results.levelEndStateType == LevelCompletionResults.LevelEndStateType.Failed)
             {
                 //Log("Multiplayer LevelFailed");
                 InvokeLevelFailed();
