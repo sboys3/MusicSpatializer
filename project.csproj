@@ -110,6 +110,10 @@
       <HintPath>.\beatsaber\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="MainAssembly">
+      <HintPath>.\beatsaber\Beat Saber_Data\Managed\BGNet.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components.cs" />
@@ -129,8 +133,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\$(TargetFileName)"
-copy "$(TargetPath)" "$(ProjectDir)beatsaber\Plugins\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "$(ProjectDir)beatsaber\Plugins\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
