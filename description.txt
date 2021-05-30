@@ -1,0 +1,30 @@
+
+Makes the audio 3D when wearing headphones. Also in 360 maps the music will follow the notes.
+
+
+
+
+
+**Music Spatializer v1.2.6**
+
+This mod uses the built in spatializer to make the music come from points in 3D space when wearing headphones. It creates two virtual speakers and plays the audio through them. In 360 maps the audio sources follow the notes.
+
+Requires BeatSaberMarkupLanguage
+
+**Download:** https://github.com/sboys3/MusicSpatializer/releases/latest
+
+
+
+
+
+
+
+**Music Spatializer Pitch Correction v1.0.0**
+
+This is an addon for Music Spatializer and will do nothing without it being installed as well. It returns the pitch of faster and slower songs to their pitch at normal speed. It is a separate mod because it requires c++ code that would make the main mod harder to put on beatmods.
+
+There are two dll files in the zip that need to be put into the Beat Saber directory. Make sure the locations of the dll files in your Beat Saber directory line up with the location that they are in the zip otherwise it won't work.
+
+Requires Music Spatializer and BeatSaberMarkupLanguage
+
+**Download:** https://github.com/sboys3/MusicSpatializerPitchCorrection/releases/latest

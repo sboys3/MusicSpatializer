@@ -64,7 +64,7 @@ namespace MusicSpatializer
                 Log("\tscene name : {0}", s.name);
                 LogGameobjects(s);
             }//*/
-            if (scene.name == "MenuViewControllers")
+            if (scene.name == "MainMenu")
             {
                 BSMLSettings.instance.AddSettingsMenu("Music Spatializer", "MusicSpatializer.Settings.UI.Views.mainsettings.bsml", MainSettings.instance);
                 SettingUiLoad?.Invoke();
@@ -218,7 +218,9 @@ namespace MusicSpatializer
                     || go.name == "SongPreviewAudioSource(Clone)" 
                     || go.name == "MultiplayerLocalInactivePlayerSongSyncController" 
                     || go.name == "MultiplayerLocalInactivePlayerOutroAnimator" 
-                    || go.name == "MultiplayerLocalActiveOutroAnimator")) 
+                    || go.name == "MultiplayerLocalActiveOutroAnimator"
+                    || go.name == "CountdownSound"
+                    || go.name == "OutroAudio")) 
                 {
                     GameObject songControl = go.gameObject;
 
@@ -317,9 +319,9 @@ namespace MusicSpatializer
             //Log("LevelFailed");
             LevelFailed?.Invoke();
         }
-        void MultiplayerFinishEvent(LevelCompletionResults results)
+        void MultiplayerFinishEvent(MultiplayerLevelCompletionResults results)
         {
-            if (results != null && results.levelEndStateType == LevelCompletionResults.LevelEndStateType.Failed)
+            if (results != null && results.levelEndState == MultiplayerLevelCompletionResults.MultiplayerLevelEndState.Failed)
             {
                 //Log("Multiplayer LevelFailed");
                 InvokeLevelFailed();
