@@ -2,11 +2,11 @@
   "$schema": "https://raw.githubusercontent.com/nike4613/ModSaber-MetadataFileSchema/master/Schema.json",
   "author": "SBoys3",
   "description": "Makes the audio 3D when wearing headphones. Also in 360 maps the music will follow the notes origin.",
-  "gameVersion": "1.16.1",
+  "gameVersion": "1.16.3",
   "id": "Music Spatializer",
   "name": "Music Spatializer",
   "icon": "MusicSpatializer.icon.png",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "dependsOn": {
     "BeatSaberMarkupLanguage": "^1.4.0",
     "BSIPA": "^4.1.3"

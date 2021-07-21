@@ -321,7 +321,7 @@ namespace MusicSpatializer
         }
         void MultiplayerFinishEvent(MultiplayerLevelCompletionResults results)
         {
-            if (results != null && results.levelEndState == MultiplayerLevelCompletionResults.MultiplayerLevelEndState.Failed)
+            if (results != null && results.levelEndState == MultiplayerLevelCompletionResults.MultiplayerLevelEndState.Failed || results.levelEndState == MultiplayerLevelCompletionResults.MultiplayerLevelEndState.GivenUp)
             {
                 //Log("Multiplayer LevelFailed");
                 InvokeLevelFailed();

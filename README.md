@@ -11,3 +11,5 @@ Dependencies: BSIPA and BSML
 4. Open `spatializer.sln` in in visual studio 2019
 5. Change the configuration from `Debug` to `Release` and Change the target from `Any Cpu` to `x64`
 6. Build solution(ctrl+shift+b)
+
+Steps 2 and 3 only need to be done if you have not already created the beatsaber directory link before.
