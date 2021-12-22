@@ -66,8 +66,14 @@ namespace MusicSpatializer
             }//*/
             if (scene.name == "MainMenu")
             {
-                BSMLSettings.instance.AddSettingsMenu("Music Spatializer", "MusicSpatializer.Settings.UI.Views.mainsettings.bsml", MainSettings.instance);
-                SettingUiLoad?.Invoke();
+                try
+                {
+                    BSMLSettings.instance.AddSettingsMenu("Music Spatializer", "MusicSpatializer.Settings.UI.Views.mainsettings.bsml", MainSettings.instance);
+                    SettingUiLoad?.Invoke();
+                }catch(Exception e)
+                {
+                    log.Error(e);
+                }
             }
 
             if (scene.name == "MultiplayerGameplay")
