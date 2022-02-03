@@ -21,8 +21,8 @@ namespace MusicSpatializer
         public GameObject speakerRight;
         public GameObject speakerResonance;
         public GameObject speakerBass;
-        public float frontDistance = 5;
-        public float sideDistance = 3f;
+        public float frontDistance = 20;
+        public float sideDistance = 15f;
         public float volumeMultiplier = 1;
         public AudioSplitter splitter;
         public AudioMixerGroup mixerGroup;
@@ -67,7 +67,7 @@ namespace MusicSpatializer
                         rotationMarker = GameObject.Find("FlyingGameHUD");
                         if (rotationMarker != null)
                         {
-                            sideDistance = 1.5f;
+                            sideDistance = 7f;
                             PositionSpeakers();
                         }
                         rotationMarkerTries--;
@@ -134,6 +134,8 @@ namespace MusicSpatializer
             source.dopplerLevel = 0;
             source.clip = dclip;
             source.rolloffMode = AudioRolloffMode.Linear;
+            source.minDistance = float.PositiveInfinity;
+            source.maxDistance = float.PositiveInfinity;
             source.spatialBlend = 1;
             source.volume = 0.275f * volumeMultiplier;
             source.priority = 0;

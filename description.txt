@@ -24,7 +24,7 @@ Requires BeatSaberMarkupLanguage
 
 **Music Spatializer Pitch Correction v1.0.1**
 
-This is an addon for Music Spatializer and will do nothing without it being installed as well. It returns the pitch of faster and slower songs to their pitch at normal speed. It is a separate mod because it requires c++ code that would make the main mod harder to put on beatmods.
+This is an addon for Music Spatializer and will do nothing without Music Spatializer being installed as well. It returns the pitch of faster and slower songs to their pitch at normal speed. It is a separate mod because it requires c++ code that would make the main mod harder to put on beatmods.
 
 There are two dll files in the zip that need to be put into the Beat Saber directory. Make sure the locations of the dll files in your Beat Saber directory line up with the location that they are in the zip otherwise it won't work.
 
