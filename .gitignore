@@ -4,3 +4,6 @@ obj
 /bin
 /MusicSpatializerPlugin.zip
 *-localOnly*
+UpgradeLog.htm
+project.csproj.user
+project.csproj.user2

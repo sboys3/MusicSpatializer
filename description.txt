@@ -1,5 +1,5 @@
 Music Spatializer
-BeatSaberMarkupLanguage@1.6.0,BSIPA@4.2.1
+BeatSaberMarkupLanguage@1.6.6,BSIPA@4.2.2
 TWEAKS / TOOLS
 Makes the audio 3D when wearing headphones. Also in 360 maps the music will follow the notes.
 https://github.com/sboys3/MusicSpatializer
@@ -8,7 +8,7 @@ https://github.com/sboys3/MusicSpatializer
 
 
 
-**Music Spatializer v1.2.10**
+**Music Spatializer v1.2.11**
 
 This mod uses the built in spatializer to make the music come from points in 3D space when wearing headphones. It creates two virtual speakers and plays the audio through them. In 360 maps the audio sources follow the notes.
 

@@ -78,12 +78,12 @@ namespace MusicSpatializer
 
             if (scene.name == "MultiplayerGameplay")
             {
-                InjectLooper(10);
+                InjectLooper(3);
             }
             else
             {
                 //Inject();
-                InjectLooper(5);
+                InjectLooper(2);
             }
             
 
@@ -192,7 +192,7 @@ namespace MusicSpatializer
         {
             Inject();
             int time = 0;
-            int sleepTime = 200;
+            int sleepTime = 300;
             while (time <= seconds * 1000) 
             { 
                 await Task.Delay(sleepTime);
@@ -327,11 +327,12 @@ namespace MusicSpatializer
         }
         void MultiplayerFinishEvent(MultiplayerLevelCompletionResults results)
         {
-            if (results != null && results.levelEndState == MultiplayerLevelCompletionResults.MultiplayerLevelEndState.Failed || results.levelEndState == MultiplayerLevelCompletionResults.MultiplayerLevelEndState.GivenUp)
+            if (results != null && (results.playerLevelEndReason == MultiplayerLevelCompletionResults.MultiplayerPlayerLevelEndReason.Failed || results.playerLevelEndReason == MultiplayerLevelCompletionResults.MultiplayerPlayerLevelEndReason.GivenUp))
             {
                 //Log("Multiplayer LevelFailed");
                 InvokeLevelFailed();
             }
+            InjectLooper(1);
         }
 
 
