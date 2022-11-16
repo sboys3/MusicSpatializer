@@ -252,6 +252,8 @@ namespace MusicSpatializer
                     float volumeMultiplier = 1;
                     volumeMultiplier = gameSettings.volume.value;
 
+                    volumeMultiplier *= Configuration.config.musicVolumeMultiplier;
+
                     //aplify ui audio
                     if (go.name == "BasicUIAudioManager")
                     {
@@ -291,10 +293,32 @@ namespace MusicSpatializer
                     {
                         speakers.doRotation = false;
                     }
+                    if(Configuration.config.enableSpatialize == false)
+                    {
+                        speakers.spatialize = false;
+                        speakers.mixerGroup = mainSource.outputAudioMixerGroup;
+                        if (mainSource.outputAudioMixerGroup != null)
+                        {
+                            // find master group so that 2d audio works
+                            AudioMixerGroup[] groups = mainSource.outputAudioMixerGroup.audioMixer.FindMatchingGroups("");
+                            //Log("AudioMixerGroup origninal: {0}", mainSource.outputAudioMixerGroup.name);
+                            foreach (AudioMixerGroup group in groups)
+                            {
+                                //Log("AudioMixerGroup: {0}", group.name);
+                                if(group.name == "Master")
+                                {
+                                    //Log("AudioMixerGroup: {0}", group.name);
+                                    speakers.mixerGroup = group;
+                                }
+                            }
+                        }
+                    }
                     if (Configuration.config.debugSpheres)
                     {
                         speakers.debugSpheres = true;
                     }
+
+
                     speakers.volumeMultiplier = volumeMultiplier;
                     //speakers.mixerGroup = mainSource.outputAudioMixerGroup;
                     //audioManager.mainVolume = volumeMultiplier * audioManager.mainVolume;

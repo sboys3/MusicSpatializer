@@ -26,6 +26,7 @@ namespace MusicSpatializer
         public float volumeMultiplier = 1;
         public AudioSplitter splitter;
         public AudioMixerGroup mixerGroup;
+        public bool spatialize = true;
         public bool resonance = true;
         public bool bassBoost = false;
         public bool doRotation = true;
@@ -116,12 +117,13 @@ namespace MusicSpatializer
             speaker.transform.parent = transform;
             speaker.name = "Music Spatializer Speaker";
 
-            AudioReader chfilt = speaker.AddComponent<AudioReader>();
-            chfilt.channel = channel;
-            chfilt.splitter = splitter;
+            AudioReader reader = speaker.AddComponent<AudioReader>();
+            reader.channel = channel;
+            reader.splitter = splitter;
+            reader.mono = spatialize;
             if (channel == -1 || channel == 21)
             {
-                chfilt.allChannels = true;
+                reader.allChannels = true;
             }
 
             AudioSource source = speaker.AddComponent<AudioSource>();
@@ -129,24 +131,31 @@ namespace MusicSpatializer
             {
                 source.outputAudioMixerGroup = mixerGroup;
             }
-            source.spatialize = true;
-            source.spatializePostEffects = true;
+
+            //Plugin.Log("AudioSource origninal: {0}", source.outputAudioMixerGroup.name);
+            source.spatialize = spatialize;
+            source.spatializePostEffects = spatialize;
+            source.bypassEffects = false;
+            source.bypassListenerEffects = true;
+            source.bypassReverbZones = true;
             source.dopplerLevel = 0;
             source.clip = dclip;
             source.rolloffMode = AudioRolloffMode.Linear;
-            source.minDistance = float.PositiveInfinity;
-            source.maxDistance = float.PositiveInfinity;
-            source.spatialBlend = 1;
-            source.volume = 0.275f * volumeMultiplier;
+            source.minDistance = 1000000;
+            source.maxDistance = 1000000;
+            source.spatialBlend = spatialize ? 1 : 0;
+            source.volume = 1;
+            reader.volume = (spatialize ? 0.275f : 0.4f) * volumeMultiplier;
             source.priority = 0;
             source.ignoreListenerPause = true;
             source.Play();
             if (channel == -1)
             {
                 source.spatialize = false;
-                source.volume = 0.2f * volumeMultiplier;
+                reader.volume = 0.2f * volumeMultiplier;
                 source.reverbZoneMix = 1.0f;
                 source.spatialBlend = 0;
+                source.bypassReverbZones = false;
 
                 //AudioLowPassFilter lowpass = speaker.AddComponent<AudioLowPassFilter>();
                 //lowpass.cutoffFrequency = 350;
@@ -164,7 +173,7 @@ namespace MusicSpatializer
                 AudioLowPassFilter lowpass = speaker.AddComponent<AudioLowPassFilter>();
                 lowpass.cutoffFrequency = 300;
                 //source.spatialize = false;
-                source.volume = 0.5f * volumeMultiplier;
+                reader.volume = 0.5f * volumeMultiplier;
             }
 
             //channel_filter chfilt = speaker.AddComponent<channel_filter>();
@@ -302,6 +311,8 @@ namespace MusicSpatializer
     {
         public int channel = 0;
         public bool allChannels = false;
+        public bool mono = true;
+        public float volume = 1.0f;
         private int iteration = 0;
         public AudioSplitter splitter;
         AudioSource source;
@@ -356,6 +367,7 @@ namespace MusicSpatializer
 
         void OnAudioFilterRead(float[] data, int channels)
         {
+            //Plugin.Log("reading audio {0} channels", channels);
 
             if (splitter.ready == false)
             {
@@ -380,7 +392,7 @@ namespace MusicSpatializer
                     int i = 0;
                     while (i < channels)
                     {
-                        data[n * channels + i] = splitter.channelData[i][n];
+                        data[n * channels + i] = splitter.channelData[i][n] * volume;
                         i++;
                     }
                     n++;
@@ -391,13 +403,20 @@ namespace MusicSpatializer
                 float[] slitData = splitter.channelData[channel];
                 while (n < dataLen)
                 {
-
-                    int i = 0;
-                    while (i < channels)
+                    if (mono)
                     {
-                        data[n * channels + i] = slitData[n];
-                        i++;
+                        int i = 0;
+                        while (i < channels)
+                        {
+                            data[n * channels + i] = slitData[n] * volume;
+                            i++;
+                        }
+                    } 
+                    else
+                    {
+                        data[n * channels + channel] = slitData[n] * volume;
                     }
+                    
                     n++;
                 }
             }

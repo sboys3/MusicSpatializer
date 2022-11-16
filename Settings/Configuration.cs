@@ -17,6 +17,8 @@ namespace MusicSpatializer.Settings
         public bool enable360 { get; set; } = true;
         public bool enableResonance { get; set; } = true;
         public bool enableBassBoost { get; set; } = false;
+        public bool enableSpatialize { get; set; } = true;
+        public float musicVolumeMultiplier { get; set; } = 1.0f;
         public bool debugSpheres { get; set; } = false;
 
         public virtual void Changed()

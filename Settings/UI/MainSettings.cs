@@ -38,6 +38,18 @@ namespace MusicSpatializer.Settings.UI
             set => Configuration.config.enableBassBoost = value;
         }
 
+        [UIValue("musicspatializer-enable-spatialize")]
+        public bool enableSpatialize {
+            get => Configuration.config.enableSpatialize;
+            set => Configuration.config.enableSpatialize = value;
+        }
+
+        [UIValue("musicspatializer-music-volume-multiplier")]
+        public float musicVolumeMultiplier {
+            get => Configuration.config.musicVolumeMultiplier;
+            set => Configuration.config.musicVolumeMultiplier = value;
+        }
+
         [UIValue("musicspatializer-debugspheres")]
         public bool DebugSpheres {
             get => Configuration.config.debugSpheres;
